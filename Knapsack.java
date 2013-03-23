@@ -1,8 +1,10 @@
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Scanner;
 
 /**
  *
@@ -11,32 +13,44 @@ import java.util.Arrays;
 public class Knapsack {
 
 	final int N;
-	Element[] elements;
+	Element.List elements;
 
 	/**
 	 *
 	 * @param n
 	 * @param inputFile
-	 * @throws Knapsack.Element.Reader.InputFileUnevenNumbersCountException
+	 * @throws Knapsack.Element.Reader.UnevenNumbersCountException
 	 * @throws IOException
 	 */
 	public Knapsack(int n, String inputFile)
-			throws Element.Reader.InputFileUnevenNumbersCountException, IOException {
+			throws Element.Reader.UnevenNumbersCountException, IOException, Element.Reader.ElementTooBigException {
 		this.N = n;
-		elements = Element.Reader.readFromFile(inputFile);
+		elements = Element.Reader.readFromFile(inputFile, N, N);
+
+		for (Element element : elements) {
+			System.out.println(element);
+		}
 	}
 
 	public int pack() {
 		return 0;
 	}
 
-	public static class Element {
+	public static class Element implements Comparable<Element> {
 
-		private int w = 0, h = 0;
+		private int w, h;
 
 		public Element(int w, int h) {
 			this.w = w;
 			this.h = h;
+		}
+
+		public int getL() {
+			return (w > h) ? w : h;
+		}
+
+		public int getS() {
+			return (w < h) ? w : h;
 		}
 
 		public int getW() {
@@ -47,60 +61,115 @@ public class Knapsack {
 			return h;
 		}
 
+		public int getSize() {
+			return w * h;
+		}
+
+		public void rotate() {
+			int tmp = w;
+			w = h;
+			h = tmp;
+		}
+
+		@Override
+		public String toString() {
+			return "(" + w + ", " + h + ")";
+		}
+
+		/**
+		 * Element's comparism mechanism. Here is implemented compareTo() method
+		 * that is ought to allow sorting elements in the most efficient manner
+		 * to be used by the implemented knapsac algorithm.
+		 *
+		 * @param t
+		 * @return
+		 */
+		@Override
+		public int compareTo(Element t) {
+			return compareSize(this, t);
+		}
+
+		public static int compareWidth(Element a, Element b) {
+			return (a.w != b.w) ? (a.w - b.w) : (a.h - b.h);
+		}
+
+		public static int compareHeight(Element a, Element b) {
+			return (a.h != b.h) ? (a.h - b.h) : (a.w - b.w);
+		}
+
+		public static int compareSize(Element a, Element b) {
+			return a.getSize() - b.getSize();
+		}
+
 		public static class Reader {
 
 			/**
 			 *
 			 * @param filename
+			 * @param maxW
+			 * @param maxH
 			 * @return
-			 * @throws
-			 * Knapsack.Element.Reader.InputFileUnevenNumbersCountException
+			 * @throws Knapsack.Element.Reader.UnevenNumbersCountException
 			 * @throws IOException
+			 * @throws Knapsack.Element.Reader.ElementTooBigException
 			 */
-			public static Element[] readFromFile(String filename)
-					throws InputFileUnevenNumbersCountException, IOException {
+			public static List readFromFile(String filename, int maxW, int maxH)
+					throws UnevenNumbersCountException, IOException, ElementTooBigException {
 
-				String input = "", s;
 				String regexp = "\\D+";
-				String[] tokens;
-				// read from file array of numbers
 
-				try (
-						FileReader fr = new FileReader(filename);
-						BufferedReader br = new BufferedReader(fr)) {
-					while ((s = br.readLine()) != null) {
-						input = input + s + " ";
+				List elements = new List();
+
+				File file = new File(filename);
+				Scanner sc = new Scanner(file).useDelimiter(regexp);
+				while (sc.hasNext()) {
+					int w = sc.nextInt();
+					if (!sc.hasNext()) {
+						throw new UnevenNumbersCountException();
+					}
+					int h = sc.nextInt();
+
+					if (w > maxW || h > maxH) {
+						throw new ElementTooBigException(new Element(w, h));
+					}
+					if (w != 0 && h != 0) {
+						elements.add(new Element(w, h));
 					}
 				}
-				tokens = input.split(regexp);
-				if (tokens.length % 2 != 0) {
-					throw new InputFileUnevenNumbersCountException();
-				}
-				int m = tokens.length / 2;
-
-				Element[] element = new Element[m];
-				for (int i = 0; i < m; i++) {
-					int u = Integer.parseInt(tokens[2 * i]);
-					int v = Integer.parseInt(tokens[2 * i + 1]);
-					element[i] = new Element(u, v);
-				}
-				Arrays.sort(element);
-
-				return element;
+				Collections.sort(elements);
+				return elements;
 			}
 
 			/**
 			 * May be thrown when count of numbers in the input file isn't even
 			 */
-			public static class InputFileUnevenNumbersCountException
+			public static class UnevenNumbersCountException
 					extends Exception {
 
 				static final long serialVersionUID = 1L;
 				static final String MSG = "Uneven count of numbers in the input file.";
 
-				public InputFileUnevenNumbersCountException() {
+				public UnevenNumbersCountException() {
 					super(MSG);
 				}
+			}
+
+			public static class ElementTooBigException
+					extends Exception {
+
+				public ElementTooBigException(Element element) {
+					super(MSG_A + element + MSG_B);
+				}
+				static final long serialVersionUID = 2L;
+				static final String MSG_A = "Element ";
+				static final String MSG_B = " too big to be cut off slug.";
+			}
+		}
+
+		public static class List extends ArrayList<Element> {
+
+			public void sort() {
+				Collections.sort(this);
 			}
 		}
 	}
