@@ -11,6 +11,7 @@ public class Main {
 
 	static String inputFile;
 	static int n;
+	static int waste;
 
 	public static void main(String[] args) {
 		if (args.length != 2) {
@@ -20,9 +21,10 @@ public class Main {
 		n = Integer.parseInt(args[1]);
 		try {
 			Knapsack knapsack = new Knapsack(n, inputFile);
-			knapsack.pack();
-		} catch (Knapsack.Element.Reader.InputFileUnevenNumbersCountException | IOException ex) {
-			
+			waste = knapsack.pack();
+			System.out.println("Waste area: " + waste);
+		} catch (Knapsack.Element.Reader.UnevenNumbersCountException | Knapsack.Element.Reader.ElementTooBigException | IOException ex) {
+
 			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
 		}
 
