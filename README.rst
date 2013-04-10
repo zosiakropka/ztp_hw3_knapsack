@@ -1,33 +1,47 @@
-Advanced Programming Techniques
+Zaawansowane Techniki Programowania
 
-======================
-Homework 3: (Knapsack)
-======================
+==========================
+Praca domowa 3: (Knapsack)
+==========================
 
 Problem
 =======
 
-There is *n x n* square slab given. *int n* is given as program input parameter 
-`<square size>`. Input file (pointed by program input parameter `<input_file>`) 
-consists of numbers pairs *(int w, int h)*, describing sizes of rectangle 
-elements to be cut off from the slab.
+Dana jest płyta *n x n*. *int n* podane jest jako parametr programu 
+`<square_size>`. Plik wejściowy, wskazany przez parametr wejściowy 
+`<input_file>` składa się z par *(int w, int h)*, opisujących rozmiary 
+prostokątnych elementów do wycięcia z płyty.
 
-`Knapsack` class should keep problem's structure and its method `int pack()` is 
-expected to solve it any in way that ensures the least amount of waste left. It 
-should return waste's area. 
+Klasa `Knapsack` powinna przetrzymywać strukturę problemu. Jej metoda 
+`int pack()` powinna rozwiązywać go w sposób pozostawiający jak najmniejszą 
+ilość odpadu. Zwracać powinna obszar odpadu.
 
-Technical requirements
-======================
+Uruchamianie
+============
 
-Compilation: ::
+Kompilacja: ::
 
 	javac –Xlint Knapsack.java Main.java
 
-Usage: ::
+Uruchamianie: ::
 
 	java Main <input_file> <square_size>
 
-Output: ::
+Wyjście: ::
 
 	Waste area: <waste_area>
+
+Algorytm
+========
+
+Algorytm zaimplementowany w programie dzieli obszar rekursywnie na mniejsze 
+puste i wypełnione obszary. Pierwszy element umieszczamy w lewym górnym rogu. 
+Dzielimy obszar na ten poniżej dolnej granicy elementu i z górnej części 
+wydzielamy obszar na prawo od elementu. Jeśli chcemy dodać kolejny element, 
+sprawdzamy czy zmieści się powyżej poziomej granicy. Jeśli nie, to sprawdzamy na 
+lewo od pionowej granicy. W którymś z tych obszarów się zmieści, dzielimy go tak 
+samo, jak dzieliliśmy obszar oryginalny. W innym wypadku umieszczamy poniżej 
+poziomej granicy i dzielimy tak ten obszar.
+
+
 
