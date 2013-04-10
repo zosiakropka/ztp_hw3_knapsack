@@ -23,11 +23,9 @@ public class Main {
 			Knapsack knapsack = new Knapsack(n, inputFile);
 			waste = knapsack.pack();
 			System.out.println("Waste area: " + waste);
-		} catch (Knapsack.Element.Reader.UnevenNumbersCountException | Knapsack.Element.Reader.ElementTooBigException | IOException ex) {
-
+		} catch (Knapsack.Element.Reader.UnevenNumbersCountException | IOException ex) {
 			Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
 		}
-
 
 	}
 }
